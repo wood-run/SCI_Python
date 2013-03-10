@@ -1,0 +1,206 @@
+* 软件配置
+| iPython    | 高级python shell |
+| spyder     | 可查看变量的IDE  |
+| NumPy      | 数值计算库       |
+| SciPy      | 科学计算库       |
+| SymPy      | 符号计算库       |
+| Traits     | 界面校验库       |
+| TraitsUI   | 界面设计库       |
+| Chaco      | 交互绘图库       |
+| matplotlib | 2D绘图库         |
+| Mayavi     | 3D绘图库         |
+| vpython    | 3D动画库         |
+| OpenCV     | 计算机视觉库     |
+* NumPy
+** ndarray对象
+*** 创建数组
+1. 导入函数库 import numpy as np
+2. 创建数组 a = np.array([[1, 2, 3], [4, 5, 6]])
+3. 创建[start, end), 步长为step的等差数列 np.arange(start, end, step)
+4. 创建[start, end], 元素个数为count的等差数列 np.linspace(start, end, count)
+5. 创建[start, end], 元素个数为count的等比数列 np.logspace(start, end count)
+6. 使用frombuffer, fromstring, fromfile等从字节序列创建数组
+7. 给定数组尺寸后依据基于坐标的函数创建数组 np.fromfunction(func, (10,))
+*** 获取属性
+1. 获取数组尺寸 a.shape 改变数组尺寸 a.shape = 3, 2
+2. 获取数组类型 a.dtype 可以在创建时强制指定 a = np.array([1, 2, 3], dtype=np.float)
+3. 当某轴长度为-1时,代表自适应尺寸
+4. 使用 d = a.reshape(3,2) 创建一个共享内存的数组指针
+*** 存取数组
+1. [下标]存取数组: 共享内存
+2. 使用整数序列存取数组: 不共享内存
+3. 使用布尔数组b: x[np.array([True, False, True])] 长度不够部分视为False
+*** 多维数组
+1. 使用数组切片访问 a[2::2,::2] a[3:, [0, 2, 5]]
+2. 使用组元访问 a[(0, 1, 2), (1, 2, 3)]
+*** 结构数组
+1. 例子 persontype = np.dtype({'names':['name', 'age', 'weight'], 'formats':['S32', 'i', 'f']})
+2. 使用 pt = np.array([("Zhao", 18, 50.1), ("Qian", 81, 70.2)], dtype = persontype)
+3. 说明 可以通过字典方式修改 pt[?]["name"]
+4. 二进制输出 pt.tofile("filename.bin")
+5. 在创建dtype对象时,添加参数 align = True, 完成C语言中的内存对齐
+** ufunc运算
+*** 函数形式
+1. 内置ufunc函数 注意, np库的大规模时更快, math库的单个计算更快
+2. 生成ufunc函数 bigufunc = np.frompyfunc(smallfunc, num_in, num_out)
+3. 两数组shape不同时会广播: 维数不同, 前面+1补齐; 仅有长度相同维或长度为1维可以合法运算
+*** 标准向量
+1. 创建标准向量 x, y = np.ogrid[0:3, 0:3] 得到 x = array([[~0], [~1], [~2]]) y = array([~[0, 1, 2, 3, 4]])
+2. ogrid的两种切片法: 开始值:结束外边界:步长 或 开始值:结束值:长度j
+*** 大规模操作方法
+1. reduce方法: 将二元算符插入沿axis轴的元素之间计算 np.add.reduce([1, 2, 3], axis = 0)
+2. accumulate方法: 类似reduce,但保留每一步中间结果
+3. outer方法: 如 np.multiply.outer(a, b) 相当于将a置为列向量, b置为行向量, 进行类似矩阵乘积运算
+4. reduceat方法: result = np.add.reduceat(somearray, indices = [0, 1, 0, 2, 3])
+| if indices[i] < indices[i+1]:                         |
+|     result[i] = np.reduce(a[indices[i]:indices[i+1]]) |
+| else:                                                 |
+|     result[i] = a[indices[i]]                         |
+| 对于最后一个元素: np.reduce(a[indices[-1]:])          |
+** 矩阵运算
+*** matri类
+存在一个np.matrix的类, 其计算按照矩阵方式进行, 但不推荐使用
+*** dot函数
+1. 一维: 点积
+2. 二维: 矩阵乘积, 常与reshape配合使用
+3. 高维: 结果数组中的每个元素都是数组a的最后一维上的所有元素与数组b的倒数第二维上的所有元素的乘积和
+*** inner函数:
+1. 一维: 点积
+2. 高维: 结果数组中的每个元素都是数组a和b的最后一维的内积
+*** outer函数
+只按照一维数组进行计算,如果传入参数是多维数组,则先将此数组展平为一维数组之后再进行运算。outer乘积计算的列向量和行向量的矩阵乘积
+*** 高级矩阵运算
+1. 逆矩阵 inv
+2. 求解多元一次方程组 solve
+** 文件存取
+balabala
+* SciPy
+** 最小二乘拟合
+| from scipy.optimize import leastsq             |
+| def residuals(p, y, x):                        |
+| ....return y - func(x, p)                      |
+| x1, y1为需要拟合的点, p0为猜测的参数           |
+| plsq = leastsq(residuals, p0, args = (y1, x1)) |
+** 函数最小值
+1. fmin, fmin_powell, fmin_cg, fmin_bfgs
+2. 求解办法
+| def convolve_func(h)                           |
+| ....return np.sum((yn - np.convolve(x, h))**2) |
+| h1 = fminfunc(convolve_func, h0)               |
+|                                                |
+** 非线性方程组求解
+1. 标准办法
+| from scipy.optimize import fsolve                           |
+| from math import sin, cos                                   |
+| def residuals(x):                                           |
+| ....u1, u2, u3 = x                                          |
+| ....return [f1(u1, u2, u3), f2(u1, u2, u3), f3(u1, u2, u3)] |
+| result = fsolve(residuals, x0)                              |
+2. 传递雅可比矩阵法
+| def residuals(x):                                           |
+| ....u1, u2, u3 = x                                          |
+| ....return [f1(u1, u2, u3), f2(u1, u2, u3), f3(u1, u2, u3)] |
+| def j(x): #定义雅可比矩阵                                   |
+| ....u0, u1, u2 = x                                          |
+| ....return [[0, 5, 0],                                      |
+| ........[8*u0, -2*u2*cos(u1*u2), -2*u1*cos(u1*u2)],         |
+| ........[0, u2, u1]]                                        |
+| result = fsolve(residuals, x0, fprime = j)                  |
+** B-Spline样条曲线
+1. 库文件 from scipy import interpolate
+2. 线性插值
+| f_linear = interpolate.interp1d(x, y) |
+| y_linear = f_linear(x_new)            |
+3. B-Spline插值
+| tck = interpolate.splrep(x, y)            |
+| y_bspline = interpolate.splev(x_new, tck) |
+** 数值积分
+*** 折线连接方式积分 np.trapz(y, x)
+*** 精确数值积分
+from scipy import integrate
+1. 定积分 quad result, err = integrate.quad(function, down, up)
+2. 二重积分 dblquad
+| def half_circle(x):                      |
+| ....return ((1 - x ** 2) ** 0.5          |
+| def half_sphere(x, y):                   |
+| ....return (1 - x ** 2 - y ** 2） ** 0.5 |
+| integrate.dblquad(half_sphere, -1, 1,    |
+| lambda x:-half_circle(x),                |
+| half_circle)                             |
+3. 三重积分 tplquad
+** 解常微分方程组
+1. 定义方程组函数
+2. 设置时间点
+3. 利用odeint进行求解
+| from scipy.integrate import odeint                                  |
+| def lorenz(w, t, p, r, b):                                          |
+| ....x, y, z = w                                                     |
+| ....return np.array([p*(y-x), x*(r-z)-y, x*y-b*z])                  |
+| t = np.arange(0, 30, 0.01)                                          |
+| track = odeint(lorenz, (0.0, 1.0, 0.0), t, args = (10.0, 28.0, 3.0) |
+** 滤波器设计
+直接来一个程序示例与注释
+| #导入signal库                                                          |
+| import scipy.signal as signal                                          |
+| #带通IIR滤波器: 通带为0.2f0~0.5f0, 阻带为<0.1f0 & >0.6f0, f0=0.5采样率 |
+| #通带最大增益衰减为2dB, 阻带最小增益衰减为40dB                         |
+| #得到IIR分子和分母的系数数组b, a                                       |
+| b, a = signal.iirdesign([0.2, 0.5], [0.1, 0.6], 2, 40)                 |
+| #调用freqz计算频率响应                                                 |
+| #得到圆频率数组w(w/pi*p0得到实际频率), h是w中对应点的复数相应数组      |
+| w, h = signal.freqz(b, a)                                              |
+| #用clip裁剪接近0的值, 然后计算增益特性                                 |
+| power = 20*np.log10(np.clip(np.abs(h), 1e-8, 1e100))                   |
+| pl.plot(w/np.pi*f_sampling/2, power)                                   |
+** 用Weave嵌入C语言
+1. 导入库: import scipy.weave as weave 使用weave.inline函数
+2. 第一个参数: C++语言代码
+3. 第二个参数: 一个列表, 表示把a和n传递给C++程序, 用字符串表示变量名
+4. 第三个参数: 将数组转换成blitz类
+5. 第四个参数: 采用gcc为编译器
+6. 程序示例
+| n = int(len(a))                               |
+| code = """                                    |
+| int i;                                        |
+| double counter;                               |
+| counter = 0;                                  |
+| for ( i = 0; i < n; i++ ){                    |
+| ....counter += a(i);                          |
+| }                                             |
+| return_val = counter;                         |
+| """                                           |
+|                                               |
+| err = weave.inline(code, ['a', 'n'],          |
+| ....type_converters = weave.converters.blitz, |
+| ....compliler = "gcc")                        |
+* SymPy
+** 欧拉恒等式示例
+1. 导入库 from sympy import *
+2. 定义实数x符号 x = symbols('x', real = True)
+3. 分实部虚部展开 expand(exp(I*x), complex = True)
+4. 泰勒展开 tmp = series(exp(I*x), x, 0, 10)
+5. 自然格式打印 pprint(tmp)
+** 球体体积示例
+1. 不定积分 integrate(x*sin(x), x)
+2. 定积分 integrate(x*sin(x), (x, 0, 2*pi))
+3. subs函数替换
+| expression.subs(x, y) 将x替换为y                           |
+| expression.subs({x:y, u:v}) 使用字典方式进行替换           |
+| expression.subs([(x, y), (u, v)]) 使用列表方式进行顺序替换 |
+3. 计算球体体积
+| x, y = symbols('x, y')                                   |
+| r = symbols('r', positive = True)                        |
+| circle_area = 2 * integrate(sqrt(r*r - x*x), (x, -r, r)) |
+| #将这个里面的r替换为sqrt(r*r - x*x)                      |
+| circle_area = circle_area.subs(r, sqrt(r*r - x*x))       |
+| result = integrate(circle_area, (x, -r, r))              |
+* matplotlib
+** 示例页面
+http://matplotlib.org/gallery.html
+
+* Traits
+* TraitsUI
+* Chaco
+* Mayavi
+* Visual
+* OpenCV
