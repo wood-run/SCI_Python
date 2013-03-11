@@ -21,7 +21,7 @@ import time
 import wx
 import pickle
 
-ITER_COUNT = 4000
+ITER_COUNT = 20000
 ITER_TIMES = 10
 VERY_BIG = 1000000
 
@@ -77,22 +77,22 @@ def ifs(p, eq, init, n):
     #通过概率，计算函数的选择序列
     p = np.add.accumulate(p)
     rands = np.random.rand(n)
-    select = np.ones(n, dtype = np.int) * (n - 1)
+    select = np.ones(n, dtype = np.int) #* (n - 1)
     for i, x in enumerate(p[::-1]):
         select[rands < x] = len(p) - i - 1
-        
+
     #initiate the result
     result = np.zeros((n, 2), dtype = np.float)
-    c = np.zeros(n, dtype = np.float)
+    #c = np.zeros(n, dtype = np.float)
     
     for i in xrange(n):
-        eqidx = select[i]
-        tmp = np.dot(eq[eqidx], pos)
+        #eqidx = select[i]
+        tmp = np.dot(eq[select[i]], pos)
         pos[:2] = tmp
         result[i] = tmp
-        c[i] = eqidx
+        #c[i] = eqidx
         
-    return result[:, 0], result[:, 1], c
+    return result[:, 0], result[:, 1], select
     
 class _MPLFigureEditor(Editor):
     """
@@ -129,9 +129,12 @@ class IFSTriangles(HasTraits):
     version = Int(0)
     
     def __init__(self, ax):
+        #某种初始化
         super(IFSTriangles, self).__init__()
+        #设置默认颜色数组和points
         self.colors = ["r", "g", "b", "c", "m", "y", "k"]
         self.points = np.array([(0,0),(2,0),(2,4),(0,1),(1,1),(1,3),(1,1),(2,1),(2,3)], dtype=np.float)
+        #得到变换函数
         self.equations = self.get_eqs()
         self.ax = ax
         self.ax.set_ylim(-10, 10)
@@ -180,7 +183,9 @@ class IFSTriangles(HasTraits):
         calculate all the affine equations
         """
         eqs = []
+        #每三个点为一组，从第1组开始计算
         for i in range(1, len(self.points) / 3):
+            #相当于取第0组和第i组求解仿射函数
             eqs.append(solve_eq(self.points[:3, :], self.points[i*3:i*3+3, :]))
         return eqs
         
@@ -296,20 +301,28 @@ class IFSHandler(Handler):
         return True
         
 class IFSDesigner(HasTraits):
+    #规定Figure的实例
     figure = Instance(Figure)
+    #规定IFSTriangles的实例    
     ifs_triangle = Instance(IFSTriangles)
+    #规定几种按钮    
     add_button = Button(u"Add a triangle")
     del_button = Button(u"Del a triangle")
     save_button = Button(u"Save the IFS")
     unsave_button = Button(u"Del the IFS")
+    #布尔型clear 表示
     clear = Bool(True)
+    #布尔型exit 表示程序是否退出
     exit = Bool(False)
+    #初始化，为名称和点集做准备
     ifs_names = List()
     ifs_points = List()
     current_name = Str
     
+    #基础界面
     view = View(
         VGroup(
+            #竖向分割，上面是一排控制，下面是图像
             HGroup(
                 Item("add_button"),
                 Item("del_button"),
@@ -413,7 +426,7 @@ class IFSDesigner(HasTraits):
         figure = Figure()
         self.ax = figure.add_subplot(121)
         self.ax2 = figure.add_subplot(122)
-        #self.ax2.set_axis_off()
+        self.ax2.set_axis_off()
         self.ax.set_axis_off()
         figure.subplots_adjust(left = 0, right = 1, bottom = 0, top = 1, wspace = 0, hspace = 0)
         figure.patch.set_facecolor("w")
