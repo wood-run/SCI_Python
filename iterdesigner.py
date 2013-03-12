@@ -303,7 +303,7 @@ class IFSHandler(Handler):
 class IFSDesigner(HasTraits):
     #规定Figure的实例
     figure = Instance(Figure)
-    #规定IFSTriangles的实例    
+    #规定IFSTriangles的实例
     ifs_triangle = Instance(IFSTriangles)
     #规定几种按钮    
     add_button = Button(u"Add a triangle")
@@ -402,7 +402,7 @@ class IFSDesigner(HasTraits):
                     #don't draw the first 100 points
                     x, y, c = ifs(self.ifs_triangle.get_areas(), self.ifs_triangle.get_eqs(), self.initpos, 100)
                     self.initpos = [x[-1], y[-1]]
-                    self.ax2.clear()              
+                    self.ax2.clear()
                    
                 x, y, c = ifs(self.ifs_triangle.get_areas(), self.ifs_triangle.get_eqs(), self.initpos, ITER_COUNT)
                 if np.max(np.abs(x)) < VERY_BIG and np.max(np.abs(y)) < VERY_BIG:
